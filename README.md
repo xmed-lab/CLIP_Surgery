@@ -16,11 +16,14 @@ Our visualization results:
 Text2Points to guide SAM:
 ![image](figs/fig4.jpg)
 
-Segmentation results:
+Multimodal visualization:
 ![image](figs/fig5.jpg)
 
-Multilabel results:
+Segmentation results:
 ![image](figs/fig6.jpg)
+
+Multilabel results:
+![image](figs/fig7.jpg)
 
 ## Demo
 
