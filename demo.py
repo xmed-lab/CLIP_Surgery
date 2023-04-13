@@ -54,7 +54,6 @@ with torch.no_grad():
 ### Explain CLIP via our CLIP Surgery
 model, preprocess = clip.load("CS-ViT-B/16", device=device)
 model.eval()
-print(model)
 
 with torch.no_grad():
     # clip architecture surgery acts on the image encoder
