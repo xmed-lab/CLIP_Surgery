@@ -68,6 +68,17 @@ class AttentionPool2d(nn.Module):
     def forward(self, x):
         x = x.reshape(x.shape[0], x.shape[1], x.shape[2] * x.shape[3]).permute(2, 0, 1)  # NCHW -> (HW)NC
         x = torch.cat([x.mean(dim=0, keepdim=True), x], dim=0)  # (HW+1)NC
+
+        side = int((self.positional_embedding.shape[0] - 1) ** 0.5)
+        new_side = int((x.shape[0] - 1) ** 0.5)
+
+        # update the position embedding during inference for varied input size
+        if side != new_side:
+            new_pos = self.positional_embedding[1:, :].reshape(-1, side, side, x.shape[-1]).permute(0, 3, 1, 2)
+            new_pos = torch.nn.functional.interpolate(new_pos, (new_side, new_side), mode='bilinear')
+            new_pos = new_pos.reshape(-1, x.shape[-1], new_side * new_side).transpose(1, 2)
+            self.positional_embedding.data = torch.cat([self.positional_embedding[:1, :], new_pos[0]], 0)
+
         x = x + self.positional_embedding[:, None, :].to(x.dtype)  # (HW+1)NC
         x, _ = F.multi_head_attention_forward(
             query=x, key=x, value=x,

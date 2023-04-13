@@ -69,6 +69,6 @@ def build_model(name: str, state_dict: dict):
         if key in state_dict:
             del state_dict[key]
 
-    convert_weights(model)
+    #convert_weights(model)
     model.load_state_dict(state_dict)
     return model.eval()

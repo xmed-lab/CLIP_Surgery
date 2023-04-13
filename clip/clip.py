@@ -291,14 +291,14 @@ def clip_feature_surgery(image_features, text_features, redundant_feats=None, t=
 
     else:
         # weights to restrain influence of obvious classes on others
-        prob = image_features @ text_features.t()
+        prob = image_features[:, :1, :] @ text_features.t()
         prob = (prob * 2).softmax(-1)
         w = prob / prob.mean(-1, keepdim=True)
 
         # element-wise multiplied features
         b, n_t, n_i, c = image_features.shape[0], text_features.shape[0], image_features.shape[1], image_features.shape[2]
         feats = image_features.reshape(b, n_i, 1, c) * text_features.reshape(1, 1, n_t, c)
-        feats *= w.reshape(b, n_i, n_t, 1)
+        feats *= w.reshape(1, 1, n_t, 1)
         redundant_feats = feats.mean(2, keepdim=True) # along cls dim
         feats = feats - redundant_feats
         
