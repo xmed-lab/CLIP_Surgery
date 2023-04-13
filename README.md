@@ -38,6 +38,7 @@ Or use the python file:
 ```
 python demo.py
 ```
+(Note: demo's results are slightly different from the experimental code, specifically no apex amp fp16 for easier to use.)
 
 ## Cite
 ```
