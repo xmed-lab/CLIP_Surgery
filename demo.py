@@ -24,62 +24,62 @@ image = preprocess(pil_img).unsqueeze(0).to(device)
 all_texts = ['airplane', 'bag', 'bed', 'bedclothes', 'bench', 'bicycle', 'bird', 'boat', 'book', 'bottle', 'building', 'bus', 'cabinet', 'car', 'cat', 'ceiling', 'chair', 'cloth', 'computer', 'cow', 'cup', 'curtain', 'dog', 'door', 'fence', 'floor', 'flower', 'food', 'grass', 'ground', 'horse', 'keyboard', 'light', 'motorbike', 'mountain', 'mouse', 'person', 'plate', 'platform', 'potted plant', 'road', 'rock', 'sheep', 'shelves', 'sidewalk', 'sign', 'sky', 'snow', 'sofa', 'table', 'track', 'train', 'tree', 'truck', 'tv monitor', 'wall', 'water', 'window', 'wood']
 target_texts = ['bench', 'person', 'ground', 'building']
 
-#### Explain raw predictions of CLIP, which are opposite and noisy.
-#with torch.no_grad():
-#    # extract image features
-#    image_features = model.encode_image(image)
-#    image_features = image_features / image_features.norm(dim=1, keepdim=True)
-#
-#    # prompt ensemble for text features with normalization
-#    text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
-#
-#    # similarity map from image tokens with min-max norm and resize, B,H,W,N
-#    features = image_features @ text_features.t()
-#    similarity_map = clip.get_similarity_map(features[:, 1:, :], cv2_img.shape[:2])
-#
-#    # draw similarity map
-#    for b in range(similarity_map.shape[0]):
-#        for n in range(similarity_map.shape[-1]):
-#            if all_texts[n] not in target_texts:
-#                continue
-#            vis = (similarity_map[b, :, :, n].cpu().numpy() * 255).astype('uint8')
-#            vis = cv2.applyColorMap(vis, cv2.COLORMAP_JET)
-#            vis = cv2_img * 0.4 + vis * 0.6
-#            vis = cv2.cvtColor(vis.astype('uint8'), cv2.COLOR_BGR2RGB)
-#            print('CLIP:', all_texts[n])
-#            plt.imshow(vis)
-#            plt.show()
-#
-#
-#### Explain CLIP via our CLIP Surgery
+### Explain raw predictions of CLIP, which are opposite and noisy.
+with torch.no_grad():
+    # extract image features
+    image_features = model.encode_image(image)
+    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+
+    # prompt ensemble for text features with normalization
+    text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
+
+    # similarity map from image tokens with min-max norm and resize, B,H,W,N
+    features = image_features @ text_features.t()
+    similarity_map = clip.get_similarity_map(features[:, 1:, :], cv2_img.shape[:2])
+
+    # draw similarity map
+    for b in range(similarity_map.shape[0]):
+        for n in range(similarity_map.shape[-1]):
+            if all_texts[n] not in target_texts:
+                continue
+            vis = (similarity_map[b, :, :, n].cpu().numpy() * 255).astype('uint8')
+            vis = cv2.applyColorMap(vis, cv2.COLORMAP_JET)
+            vis = cv2_img * 0.4 + vis * 0.6
+            vis = cv2.cvtColor(vis.astype('uint8'), cv2.COLOR_BGR2RGB)
+            print('CLIP:', all_texts[n])
+            plt.imshow(vis)
+            plt.show()
+
+
+### Explain CLIP via our CLIP Surgery
 model, preprocess = clip.load("CS-ViT-B/16", device=device)
 model.eval()
-#print(model)
-#
-#with torch.no_grad():
-#    # clip architecture surgery acts on the image encoder
-#    image_features = model.encode_image(image)
-#    image_features = image_features / image_features.norm(dim=1, keepdim=True)
-#
-#    # prompt ensemble for text features with normalization
-#    text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
-#
-#    # apply feature surgery
-#    similarity = clip.clip_feature_surgery(image_features, text_features)
-#    similarity_map = clip.get_similarity_map(similarity[:, 1:, :], cv2_img.shape[:2])
-#
-#    # draw similarity map
-#    for b in range(similarity_map.shape[0]):
-#        for n in range(similarity_map.shape[-1]):
-#            if all_texts[n] not in target_texts:
-#                continue
-#            vis = (similarity_map[b, :, :, n].cpu().numpy() * 255).astype('uint8')
-#            vis = cv2.applyColorMap(vis, cv2.COLORMAP_JET)
-#            vis = cv2_img * 0.4 + vis * 0.6
-#            vis = cv2.cvtColor(vis.astype('uint8'), cv2.COLOR_BGR2RGB)
-#            print('CLIP Surgery:', all_texts[n])
-#            plt.imshow(vis)
-#            plt.show()
+print(model)
+
+with torch.no_grad():
+    # clip architecture surgery acts on the image encoder
+    image_features = model.encode_image(image)
+    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+
+    # prompt ensemble for text features with normalization
+    text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
+
+    # apply feature surgery
+    similarity = clip.clip_feature_surgery(image_features, text_features)
+    similarity_map = clip.get_similarity_map(similarity[:, 1:, :], cv2_img.shape[:2])
+
+    # draw similarity map
+    for b in range(similarity_map.shape[0]):
+        for n in range(similarity_map.shape[-1]):
+            if all_texts[n] not in target_texts:
+                continue
+            vis = (similarity_map[b, :, :, n].cpu().numpy() * 255).astype('uint8')
+            vis = cv2.applyColorMap(vis, cv2.COLORMAP_JET)
+            vis = cv2_img * 0.4 + vis * 0.6
+            vis = cv2.cvtColor(vis.astype('uint8'), cv2.COLOR_BGR2RGB)
+            print('CLIP Surgery:', all_texts[n])
+            plt.imshow(vis)
+            plt.show()
 
 
 ### CLIP Surgery using higher resolution

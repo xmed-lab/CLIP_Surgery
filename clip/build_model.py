@@ -69,6 +69,9 @@ def build_model(name: str, state_dict: dict):
         if key in state_dict:
             del state_dict[key]
 
+    # results of this demo version is slightly different from the paper
+    # model of the paper is wrapped by mmcv, fp32 parameters return fp16 data, it's wired, checking...
+
     #convert_weights(model)
     model.load_state_dict(state_dict)
     return model.eval()
