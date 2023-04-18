@@ -26,18 +26,18 @@ target_texts = ['bench', 'person', 'ground', 'building']
 
 ### Explain raw predictions of CLIP, which are opposite and noisy.
 with torch.no_grad():
-    # extract image features
+    # Extract image features
     image_features = model.encode_image(image)
     image_features = image_features / image_features.norm(dim=1, keepdim=True)
 
-    # prompt ensemble for text features with normalization
+    # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
 
-    # similarity map from image tokens with min-max norm and resize, B,H,W,N
+    # Similarity map from image tokens with min-max norm and resize, B,H,W,N
     features = image_features @ text_features.t()
     similarity_map = clip.get_similarity_map(features[:, 1:, :], cv2_img.shape[:2])
 
-    # draw similarity map
+    # Draw similarity map
     for b in range(similarity_map.shape[0]):
         for n in range(similarity_map.shape[-1]):
             if all_texts[n] not in target_texts:
@@ -56,18 +56,18 @@ model, preprocess = clip.load("CS-ViT-B/16", device=device)
 model.eval()
 
 with torch.no_grad():
-    # clip architecture surgery acts on the image encoder
+    # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
     image_features = image_features / image_features.norm(dim=1, keepdim=True)
 
-    # prompt ensemble for text features with normalization
+    # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
 
-    # apply feature surgery
+    # Apply feature surgery
     similarity = clip.clip_feature_surgery(image_features, text_features)
     similarity_map = clip.get_similarity_map(similarity[:, 1:, :], cv2_img.shape[:2])
 
-    # draw similarity map
+    # Draw similarity map
     for b in range(similarity_map.shape[0]):
         for n in range(similarity_map.shape[-1]):
             if all_texts[n] not in target_texts:
@@ -82,23 +82,25 @@ with torch.no_grad():
 
 
 ### CLIP Surgery using higher resolution
+
+# This preprocess for all next cases
 preprocess =  Compose([Resize((512, 512), interpolation=BICUBIC), ToTensor(),
     Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))])
 image = preprocess(pil_img).unsqueeze(0).to(device)
 
 with torch.no_grad():
-    # clip architecture surgery acts on the image encoder
+    # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
     image_features = image_features / image_features.norm(dim=1, keepdim=True)
 
-    # prompt ensemble for text features with normalization
+    # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
 
-    # apply feature surgery
+    # Apply feature surgery
     similarity = clip.clip_feature_surgery(image_features, text_features)
     similarity_map = clip.get_similarity_map(similarity[:, 1:, :], cv2_img.shape[:2])
 
-    # draw similarity map
+    # Draw similarity map
     for b in range(similarity_map.shape[0]):
         for n in range(similarity_map.shape[-1]):
             if all_texts[n] not in target_texts:
@@ -116,21 +118,21 @@ with torch.no_grad():
 texts = ['shoes']
 
 with torch.no_grad():
-    # clip architecture surgery acts on the image encoder
+    # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
     image_features = image_features / image_features.norm(dim=1, keepdim=True)
 
-    # prompt ensemble for text features with normalization
+    # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, texts, device)
 
-    # extract redundant features from an empty string
+    # Extract redundant features from an empty string
     redundant_features = clip.encode_text_with_prompt_ensemble(model, [""], device)
 
-    # apply feature surgery for single text
+    # Apply feature surgery for single text
     similarity = clip.clip_feature_surgery(image_features, text_features, redundant_features)
     similarity_map = clip.get_similarity_map(similarity[:, 1:, :], cv2_img.shape[:2])
 
-    # draw similarity map
+    # Draw similarity map
     for b in range(similarity_map.shape[0]):
         for n in range(similarity_map.shape[-1]):
             vis = (similarity_map[b, :, :, n].cpu().numpy() * 255).astype('uint8')
@@ -152,19 +154,19 @@ sam.to(device=device)
 predictor = SamPredictor(sam)
 predictor.set_image(np.array(pil_img))
 
-# inference CLIP Surgery and SAM
+# Inference CLIP Surgery and SAM
 with torch.no_grad():
-    # clip architecture surgery acts on the image encoder
-    image_features = model.encode_image(image)
+    # CLIP architecture surgery acts on the image encoder
+    image_features = model.encode_image(image) # Image resized to 512
     image_features = image_features / image_features.norm(dim=1, keepdim=True)
 
-    # prompt ensemble for text features with normalization
+    # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
 
-    # apply feature surgery, no batch
+    # Apply feature surgery, no batch
     similarity = clip.clip_feature_surgery(image_features, text_features)[0]
 
-    # inference SAM with points from CLIP Surgery
+    # Inference SAM with points from CLIP Surgery
     for n in range(similarity.shape[-1]):
         if all_texts[n] not in target_texts:
             continue
@@ -173,7 +175,7 @@ with torch.no_grad():
         mask = masks[np.argmax(scores)]
         mask = mask.astype('uint8')
 
-        # visualize the results
+        # Visualize the results
         vis = cv2_img.copy()
         vis[mask > 0] = vis[mask > 0] // 2 + np.array([153, 255, 255], dtype=np.uint8) // 2
         for i, [x, y] in enumerate(points):
@@ -185,3 +187,86 @@ with torch.no_grad():
 
     print('Sometimes, the points are accurate, while the masks from SAM still need improvements.')
     print('I mean, some failure cases are not caused by wrong points.')
+
+
+### Inference CLIP Surgery and SAM for a single text
+texts = ['bench']
+
+with torch.no_grad():
+    # CLIP architecture surgery acts on the image encoder
+    image_features = model.encode_image(image)
+    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+
+    # Prompt ensemble for text features with normalization
+    text_features = clip.encode_text_with_prompt_ensemble(model, texts, device)
+
+    # Extract redundant features from an empty string
+    redundant_features = clip.encode_text_with_prompt_ensemble(model, [""], device)
+
+    # CLIP feature surgery with costum redundant features
+    similarity = clip.clip_feature_surgery(image_features, text_features, redundant_features)[0]
+    
+    # Inference SAM with points from CLIP Surgery
+    points, labels = clip.similarity_map_to_points(similarity[1:, 0], cv2_img.shape[:2], t=0.8)
+    masks, scores, logits = predictor.predict(point_labels=labels, point_coords=np.array(points), multimask_output=True)
+    mask = masks[np.argmax(scores)]
+    mask = mask.astype('uint8')
+
+    # Visualize the results
+    vis = cv2_img.copy()
+    vis[mask > 0] = vis[mask > 0] // 2 + np.array([153, 255, 255], dtype=np.uint8) // 2
+    for i, [x, y] in enumerate(points):
+        cv2.circle(vis, (x, y), 3, (0, 102, 255) if labels[i] == 1 else (255, 102, 51), 3)
+    vis = cv2.cvtColor(vis.astype('uint8'), cv2.COLOR_BGR2RGB)
+    print('SAM & CLIP Surgery for single text:', texts[0])
+    plt.imshow(vis)
+    plt.show()
+
+
+### CLIP Surgery + SAM for combined targets
+
+# We use "+" to combine texts, instead of a whole sentence (obvious text may take the lead thus overlook rest)
+text = 'person+bench'
+
+with torch.no_grad():
+    # CLIP architecture surgery acts on the image encoder
+    image_features = model.encode_image(image)
+    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+
+    # Extract redundant features from an empty string
+    redundant_features = clip.encode_text_with_prompt_ensemble(model, [""], device)
+
+    # Prompt ensemble for text features with normalization
+    text_features = clip.encode_text_with_prompt_ensemble(model, text.split('+'), device)
+    
+    # Combine features after removing redundant features and min-max norm
+    sm = clip.clip_feature_surgery(image_features, text_features, redundant_features)[0, 1:, :]
+    sm_norm = (sm - sm.min(0, keepdim=True)[0]) / (sm.max(0, keepdim=True)[0] - sm.min(0, keepdim=True)[0])
+    sm_mean = sm_norm.mean(-1, keepdim=True)
+
+    # get positive points from individual maps, and negative points from the mean map
+    p, l = clip.similarity_map_to_points(sm_mean, cv2_img.shape[:2], t=0.8)
+    num = len(p) // 2
+    points = p[num:] # negatives in the second half
+    labels = [l[num:]]
+    for i in range(sm.shape[-1]):
+        p, l = clip.similarity_map_to_points(sm[:, i], cv2_img.shape[:2], t=0.8)
+        num = len(p) // 2
+        points = points + p[:num] # positive in first half
+        labels.append(l[:num])
+    labels = np.concatenate(labels, 0)
+
+    # Inference SAM with points from CLIP Surgery
+    masks, scores, logits = predictor.predict(point_labels=labels, point_coords=np.array(points), multimask_output=True)
+    mask = masks[np.argmax(scores)]
+    mask = mask.astype('uint8')
+
+    # Visualize the results
+    vis = cv2_img.copy()
+    vis[mask > 0] = vis[mask > 0] // 2 + np.array([153, 255, 255], dtype=np.uint8) // 2
+    for i, [x, y] in enumerate(points):
+        cv2.circle(vis, (x, y), 3, (0, 102, 255) if labels[i] == 1 else (255, 102, 51), 3)
+    vis = cv2.cvtColor(vis.astype('uint8'), cv2.COLOR_BGR2RGB)
+    print('SAM & CLIP Surgery for texts combination:', text)
+    plt.imshow(vis)
+    plt.show()
