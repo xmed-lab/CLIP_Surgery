@@ -1,4 +1,4 @@
-# [CLIP Surgery for Better Explainability with Enhancement in Open-Vocabulary Tasks](https://arxiv.org/abs/2304.05653)
+# CLIP Surgery for Better Explainability with Enhancement in Open-Vocabulary Tasks ([arxiv](https://arxiv.org/abs/2304.05653))
 
 ## Introduction
 
