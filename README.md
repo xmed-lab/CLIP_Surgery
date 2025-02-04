@@ -1,4 +1,5 @@
-# CLIP Surgery for Better Explainability with Enhancement in Open-Vocabulary Tasks ([arxiv](https://arxiv.org/abs/2304.05653))
+# A closer look at the explainability of Contrastive language-image pre-training ([Pattern Recognition](https://www.sciencedirect.com/science/article/abs/pii/S003132032500069X?via%3Dihub))
+Early version: CLIP Surgery for Better Explainability with Enhancement in Open-Vocabulary Tasks ([arxiv](https://arxiv.org/abs/2304.05653))
 
 ## Introduction
 
@@ -42,12 +43,14 @@ python demo.py
 
 ## Cite
 ```
-@misc{li2023clip,
-      title={CLIP Surgery for Better Explainability with Enhancement in Open-Vocabulary Tasks}, 
-      author={Yi Li and Hualiang Wang and Yiqun Duan and Xiaomeng Li},
-      year={2023},
-      eprint={2304.05653},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{LI2025111409,
+title = {A closer look at the explainability of Contrastive language-image pre-training},
+journal = {Pattern Recognition},
+pages = {111409},
+year = {2025},
+issn = {0031-3203},
+doi = {https://doi.org/10.1016/j.patcog.2025.111409},
+url = {https://www.sciencedirect.com/science/article/pii/S003132032500069X},
+author = {Yi Li and Hualiang Wang and Yiqun Duan and Jiheng Zhang and Xiaomeng Li}
 }
 ```
