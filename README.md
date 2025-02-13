@@ -46,6 +46,7 @@ python demo.py
 @article{LI2025111409,
 title = {A closer look at the explainability of Contrastive language-image pre-training},
 journal = {Pattern Recognition},
+volume = {162},
 pages = {111409},
 year = {2025},
 issn = {0031-3203},
