@@ -28,7 +28,7 @@ target_texts = ['bench', 'person', 'ground', 'building']
 with torch.no_grad():
     # Extract image features
     image_features = model.encode_image(image)
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
@@ -58,7 +58,7 @@ model.eval()
 with torch.no_grad():
     # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
@@ -91,7 +91,7 @@ image = preprocess(pil_img).unsqueeze(0).to(device)
 with torch.no_grad():
     # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
@@ -120,7 +120,7 @@ texts = ['shoes']
 with torch.no_grad():
     # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, texts, device)
@@ -158,7 +158,7 @@ predictor.set_image(np.array(pil_img))
 with torch.no_grad():
     # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image) # Image resized to 512
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, all_texts, device)
@@ -195,7 +195,7 @@ texts = ['bench']
 with torch.no_grad():
     # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Prompt ensemble for text features with normalization
     text_features = clip.encode_text_with_prompt_ensemble(model, texts, device)
@@ -231,7 +231,7 @@ text = 'person+bench'
 with torch.no_grad():
     # CLIP architecture surgery acts on the image encoder
     image_features = model.encode_image(image)
-    image_features = image_features / image_features.norm(dim=1, keepdim=True)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     # Extract redundant features from an empty string
     redundant_features = clip.encode_text_with_prompt_ensemble(model, [""], device)
